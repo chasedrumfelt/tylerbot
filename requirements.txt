@@ -1,0 +1,10 @@
+# discord python package, and dotenv
+discord.py
+python-dotenv
+aiohttp
+logging
+os
+asyncio
+datetime
+random
+json
