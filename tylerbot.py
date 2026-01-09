@@ -11,6 +11,7 @@ from yt_dlp import YoutubeDL
 from fortnite_fetch import start_daily_shop_task
 from water_check import start_daily_water_check_task
 from dice_roller import roll as dice_roll_command
+from familyguy_cutaway import search_youtube_video
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -79,22 +80,18 @@ async def on_message(message):
             await message.reply(rest, mention_author=False)
             return
 
-    # YouTube search handler for "this reminds me of the time that i "
-    yt_trigger = "this reminds me of the time that i "
-    yt_idx = content.find(yt_trigger)
-    if yt_idx != -1:
-        search_query = message.content[yt_idx + len(yt_trigger):].strip()
-        if search_query:
-            try:
-                ydl_opts = {'quiet': True, 'no_warnings': True}
-                with YoutubeDL(ydl_opts) as ydl:
-                    info = ydl.extract_info(f"ytsearch:{search_query}", download=False)
-                    if info and 'entries' in info and len(info['entries']) > 0:
-                        video_url = f"https://www.youtube.com/watch?v={info['entries'][0]['id']}"
-                        await message.reply(video_url, mention_author=False)
-                        return
-            except Exception as e:
-                logging.error(f"Error searching YouTube: {e}")
+    # "that reminds me of the time that i " handler for YouTube search
+    trigger = "that reminds me of the time that i "
+    idx = content.find(trigger)
+    if idx != -1:
+        rest = message.content[idx + len(trigger):].strip()
+        if rest:
+            video_url = await search_youtube_video(rest)
+            if video_url:
+                await message.reply(video_url, mention_author=False)
+            else:
+                await message.reply("Couldn't find a video for that.", mention_author=False)
+            return
 
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():

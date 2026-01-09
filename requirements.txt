@@ -8,3 +8,4 @@ asyncio
 datetime
 random
 json
+youtubesearchpython>=1.6.6
