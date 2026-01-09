@@ -2,10 +2,7 @@
 discord.py
 python-dotenv
 aiohttp
-logging
-os
 asyncio
 datetime
 random
-json
-youtubesearchpython>=1.6.6
+yt_dlp
