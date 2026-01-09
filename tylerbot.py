@@ -10,6 +10,7 @@ import constants
 from fortnite_fetch import start_daily_shop_task
 from water_check import start_daily_water_check_task
 from dice_roller import roll as dice_roll_command
+from familyguy_cutaway import search_youtube_video
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -77,6 +78,19 @@ async def on_message(message):
         rest = message.content[idx + len(trigger):].strip()
         if rest:
             await message.reply(rest, mention_author=False)
+            return
+
+    # "that reminds me of the time that i " handler for YouTube search
+    trigger = "that reminds me of the time that i "
+    idx = content.find(trigger)
+    if idx != -1:
+        rest = message.content[idx + len(trigger):].strip()
+        if rest:
+            video_url = await search_youtube_video(rest)
+            if video_url:
+                await message.reply(video_url, mention_author=False)
+            else:
+                await message.reply("Couldn't find a video for that.", mention_author=False)
             return
 
     # Check for keyword responses
