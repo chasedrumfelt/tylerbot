@@ -3,6 +3,4 @@ discord.py
 python-dotenv
 aiohttp
 asyncio
-datetime
-random
 yt_dlp

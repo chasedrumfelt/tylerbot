@@ -84,8 +84,10 @@ async def on_message(message):
     trigger = "that reminds me of the time that i "
     idx = content.find(trigger)
     if idx != -1:
+        logger.info(f"YouTube search triggered by message: {message.content}")
         rest = message.content[idx + len(trigger):].strip()
         if rest:
+            logger.info(f"Searching YouTube for: {rest}")
             video_url = await search_youtube_video(rest)
             if video_url:
                 await message.reply(video_url, mention_author=False)
