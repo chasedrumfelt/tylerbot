@@ -1,37 +1,35 @@
-# familyguy_cutaway.py - provide as a Cog to be loaded by your main bot
-# Requires: discord.py, youtubesearchpython
-# pip install discord.py youtubesearchpython
+import logging
+import yt_dlp
 
-import asyncio
-import discord
-from discord.ext import commands
+logger = logging.getLogger("FamilyGuyReminder")
 
-try:
-    from youtubesearchpython import VideosSearch
-except Exception:
-    VideosSearch = None  # handle missing dependency at runtime
-
-class FamilyGuyCutaway(commands.Cog):
-    def __init__(self, bot: commands.Bot):
-        self.bot = bot
-
-    @commands.command(name='yt', help='Search YouTube and return the top result link. Usage: !yt your search terms')
-    async def yt(self, ctx, *, query: str):
-        if VideosSearch is None:
-            await ctx.send("Missing dependency 'youtubesearchpython'. Install with: pip install youtubesearchpython")
-            return
-        loop = asyncio.get_running_loop()
-        result = await loop.run_in_executor(None, lambda: VideosSearch(query, limit=1).result())
-        try:
-            link = result['result'][0]['link']
-            await ctx.send(link)
-        except (KeyError, IndexError):
-            await ctx.send("No results found.")
-
-def setup(bot: commands.Bot):
-    """For discord.py < 2.0 (sync extensions loader)."""
-    bot.add_cog(FamilyGuyCutaway(bot))
-
-# If you're using discord.py 2.0+ and the async loader pattern, use this loader instead:
-# async def setup(bot: commands.Bot):
-#     await bot.add_cog(FamilyGuyCutaway(bot))
+async def search_youtube_video(query: str) -> str | None:
+    """
+    Search for a YouTube video based on the provided query.
+    Returns the URL of the first result, or None if no results found.
+    """
+    try:
+        ydl_opts = {
+            'quiet': True,
+            'no_warnings': True,
+            'default_search': 'ytsearch',
+            'max_downloads': 1,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            logger.info(f"Searching YouTube for: {query}")
+            info = ydl.extract_info(query, download=False)
+            
+            # Extract the first result
+            if 'entries' in info and len(info['entries']) > 0:
+                video_url = info['entries'][0]['webpage_url']
+                video_title = info['entries'][0].get('title', 'Unknown')
+                logger.info(f"Found video: {video_title} ({video_url})")
+                return video_url
+            else:
+                logger.warning(f"No videos found for query: {query}")
+                return None
+                
+    except Exception as e:
+        logger.error(f"Error searching YouTube: {str(e)}")
+        return None

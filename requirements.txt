@@ -2,9 +2,5 @@
 discord.py
 python-dotenv
 aiohttp
-logging
-os
 asyncio
-datetime
-random
-json
+yt_dlp
