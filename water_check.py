@@ -22,7 +22,7 @@ async def send_water_check_to_guilds(bot):
         try:
             watercheck_role = constants.GAMERS_ROLE_ID
             role_mention = f"<@&{watercheck_role}>"
-            await ctx.send(f"Hey {role_mention} water check!")
+            await channel.send(f"Hey {role_mention} water check!", allowed_mentions=allowed)
             logger.info(f"Sent water check!")
         except Exception as e:
             logger.warning(f"Failed to send water check: {e}")
