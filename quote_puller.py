@@ -62,11 +62,10 @@ async def get_random_quote(ctx, channel_id: int):
         thread_name = random_thread.name
         
         embed = discord.Embed(
-            title=f"Quote from #{thread_name}",
+            title=f"Quote from {thread_name}",
             description=quote_text,
             color=discord.Color.blue()
         )
-        embed.set_footer(text=f"- {author_name}")
         
         await ctx.send(embed=embed)
         logger.info(f"Sent quote from {author_name} in thread {thread_name}")
