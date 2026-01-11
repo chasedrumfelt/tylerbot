@@ -101,7 +101,7 @@ def start_daily_shop_task(bot):
             # Detect new skins
             new_skins = current_skins - previous_skins
             if new_skins:
-                channel = bot.get_channel(SHOP_CHANNEL_ID)
+                channel = bot.get_channel(constants.GAMER_CHANNEL)
                 if channel:
                     await channel.send(
                         "**🛒 New Fortnite skins today:**\n" +
@@ -109,7 +109,7 @@ def start_daily_shop_task(bot):
                     )
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
-                    logger.warning(f"Channel {SHOP_CHANNEL_ID} not found for daily check")
+                    logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
 
             # Save current shop for next comparison
             save_current_items(current_skins)
