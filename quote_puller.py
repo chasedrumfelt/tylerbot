@@ -69,6 +69,7 @@ async def get_random_quote(ctx, channel_id: int):
         
         await ctx.send(embed=embed)
         logger.info(f"Sent quote from {author_name} in thread {thread_name}")
+        logger.info(f"Message ID: {random_message.id}")
         
     except Exception as e:
         logger.error(f"Error in get_random_quote: {str(e)}")

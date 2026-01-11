@@ -18,16 +18,14 @@ channel = constants.GENERAL_CHANNEL
 
 async def send_water_check_to_guilds(bot):
     allowed = discord.AllowedMentions(everyone=True)
-    if channel:
-        try:
-            watercheck_role = constants.GAMERS_ROLE_ID
-            role_mention = f"<@&{watercheck_role}>"
-            await channel.send(f"Hey {role_mention} water check!", allowed_mentions=allowed)
-            logger.info(f"Sent water check!")
-        except Exception as e:
-            logger.warning(f"Failed to send water check: {e}")
-    else:
-        logger.warning("No channel found for water check.")
+    try:
+        target_channel = bot.get_channel(channel)
+        watercheck_role = constants.GAMERS_ROLE_ID
+        role_mention = f"<@&{watercheck_role}>"
+        await target_channel.send(f"Hey {role_mention} water check!", allowed_mentions=allowed)
+        logger.info(f"Sent water check!")
+    except Exception as e:
+        logger.warning(f"Failed to send water check: {e}")
 
 def start_daily_water_check_task(bot):
     async def water_loop():
