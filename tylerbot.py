@@ -6,14 +6,15 @@ import re
 import string
 import logging
 import constants
-from yt_dlp import YoutubeDL
+from yt_dlp import YoutubeDL # type: ignore
 
 from fortnite_fetch import start_daily_shop_task
 from water_check import start_daily_water_check_task
 from dice_roller import roll as dice_roll_command
 from familyguy_cutaway import search_youtube_video
+from quote_puller import get_random_quote
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 load_dotenv()
 
 intents = discord.Intents.default()
@@ -129,5 +130,12 @@ async def feet(ctx):
 # assume that functionality lies in dice_roller.py
 async def roll(ctx, *, dice: str):
     await dice_roll_command(ctx, dice)
+
+@bot.command(name="quote")
+async def quote(ctx):
+    if ctx.author.id not in constants.ADMIN_USER_IDS:
+        await ctx.send("Sorry dude, this one's ferda.")
+        return
+    await get_random_quote(ctx, constants.QUOTE_CHANNEL)
 
 bot.run(constants.DISCORD_TOKEN)
