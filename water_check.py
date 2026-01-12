@@ -14,15 +14,13 @@ logger = logging.getLogger("WaterCheck")
 START_HOUR = 8
 END_HOUR = 23  # last possible hour for reminder
 
-channel = constants.GENERAL_CHANNEL
-
 async def send_water_check_to_guilds(bot):
     allowed = discord.AllowedMentions(everyone=True)
     try:
-        target_channel = bot.get_channel(channel)
+        target_channel = bot.get_channel(constants.GENERAL_CHANNEL)
         watercheck_role = constants.GAMERS_ROLE_ID
         role_mention = f"<@&{watercheck_role}>"
-        await target_channel.send(f"Hey {role_mention} water check!", allowed_mentions=allowed)
+        await target_channel.send(f"Hey {role_mention}, water check!", allowed_mentions=allowed)
         logger.info(f"Sent water check!")
     except Exception as e:
         logger.warning(f"Failed to send water check: {e}")

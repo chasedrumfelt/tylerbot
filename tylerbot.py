@@ -120,7 +120,7 @@ async def on_message(message):
 async def watercheck(ctx):
     watercheck_role = constants.GAMERS_ROLE_ID
     role_mention = f"<@&{watercheck_role}>"
-    await ctx.send(f"Hey guys, {role_mention}")
+    await ctx.send(f"Hey {role_mention}, water check!")
 
 @bot.command(name="feet")
 async def feet(ctx):
