@@ -9,7 +9,7 @@ import constants
 from yt_dlp import YoutubeDL # type: ignore
 
 from fortnite_fetch import start_daily_shop_task
-from water_check import start_daily_water_check_task
+from water_check import setup as setup_water_check
 from dice_roller import roll as dice_roll_command
 from familyguy_cutaway import search_youtube_video
 from quote_puller import get_random_quote
@@ -56,7 +56,7 @@ async def on_ready():
     logging.info(f"Bot ready: {bot.user}")
     # Start background tasks
     start_daily_shop_task(bot)
-    start_daily_water_check_task(bot)
+    await setup_water_check(bot)
 
 # on message
 @bot.event
