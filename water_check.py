@@ -33,11 +33,17 @@ class WaterCheck(commands.Cog):
     async def on_reaction_remove(self, reaction, user):
         if user.bot:
             return
-        if self.water_check_message and reaction.message.id == self.water_check_message.id and str(reaction.emoji) == '💧':
+        logger.info(f"Reaction removed: emoji={str(reaction.emoji)}, channel={reaction.message.channel.id}, general_channel={constants.GENERAL_CHANNEL}")
+        # Check if it's the water droplet emoji in the general channel
+        if reaction.message.channel.id == constants.GENERAL_CHANNEL and str(reaction.emoji) == '💧':
             role = reaction.message.guild.get_role(constants.WATERCHECK_ROLE_ID)
             if role:
                 await user.remove_roles(role)
                 logger.info(f"Removed {role.name} from {user}")
+            else:
+                logger.warning(f"Could not find role with ID {constants.WATERCHECK_ROLE_ID}")
+        else:
+            logger.info(f"Reaction remove check failed - channel match: {reaction.message.channel.id == constants.GENERAL_CHANNEL}, emoji match: {str(reaction.emoji) == '💧'}")
 
     async def send_water_check_to_guilds(self):
         allowed = discord.AllowedMentions(everyone=True)
