@@ -80,4 +80,6 @@ class WaterCheck(commands.Cog):
         asyncio.create_task(water_loop())
 
 async def setup(bot):
-    await bot.add_cog(WaterCheck(bot))
+    cog = WaterCheck(bot)
+    await bot.add_cog(cog)
+    cog.start_daily_water_check_task()

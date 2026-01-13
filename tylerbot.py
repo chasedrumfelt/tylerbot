@@ -111,6 +111,7 @@ async def on_message(message):
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
+        return
 
     await bot.process_commands(message)
 
@@ -118,7 +119,7 @@ async def on_message(message):
 # on command
 @bot.command(name="watercheck")
 async def watercheck(ctx):
-    watercheck_role = constants.GAMERS_ROLE_ID
+    watercheck_role = constants.WATERCHECK_ROLE_ID
     role_mention = f"<@&{watercheck_role}>"
     await ctx.send(f"Hey {role_mention}, water check!")
 
