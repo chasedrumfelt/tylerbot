@@ -19,6 +19,7 @@ load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.reactions = True
 bot = commands.Bot(command_prefix="!", 
                    intents=intents,
                    allowed = discord.AllowedMentions.all()
@@ -121,7 +122,13 @@ async def on_message(message):
 async def watercheck(ctx):
     watercheck_role = constants.WATERCHECK_ROLE_ID
     role_mention = f"<@&{watercheck_role}>"
-    await ctx.send(f"Hey {role_mention}, water check!")
+    message = await ctx.send(f"Hey {role_mention}, water check!")
+    await message.add_reaction('💧')
+    
+    # Update the cog's water_check_message so reactions are tracked
+    water_check_cog = ctx.bot.get_cog("WaterCheck")
+    if water_check_cog:
+        water_check_cog.water_check_message = message
 
 @bot.command(name="feet")
 async def feet(ctx):
