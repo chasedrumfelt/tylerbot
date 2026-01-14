@@ -16,7 +16,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger("dice_roller")
 
-async def roll(ctx, dice_input: str):
+async def roll(interaction, dice_input: str):
     logger.info(f"Original input: '{dice_input}'")
 
     # Remove spaces
@@ -28,7 +28,7 @@ async def roll(ctx, dice_input: str):
     logger.info(f"Split expressions: {expressions}")
 
     if not expressions:
-        await ctx.send("No dice to roll.")
+        await interaction.response.send_message("No dice to roll.")
         logger.warning("No expressions found after splitting.")
         return
 
@@ -41,7 +41,7 @@ async def roll(ctx, dice_input: str):
         logger.info(f"Processing expression: '{expr}'")
         match = dice_pattern.fullmatch(expr)
         if not match:
-            await ctx.send(f"Invalid dice expression: `{expr}`. Use NdM format, e.g., 2d6.")
+            await interaction.response.send_message(f"Invalid dice expression: `{expr}`. Use NdM format, e.g., 2d6.")
             logger.error(f"Expression failed regex match: '{expr}'")
             return
 
@@ -50,11 +50,11 @@ async def roll(ctx, dice_input: str):
 
         # Safety limits
         if count < 1 or sides < 2:
-            await ctx.send(f"Dice count must be ≥1 and sides ≥2 in `{expr}`.")
+            await interaction.response.send_message(f"Dice count must be ≥1 and sides ≥2 in `{expr}`.")
             logger.warning(f"Expression out of bounds: '{expr}'")
             return
         if count > 100 or sides > 1000:
-            await ctx.send(f"Limits: max 100 dice, max 1000 sides in `{expr}`.")
+            await interaction.response.send_message(f"Limits: max 100 dice, max 1000 sides in `{expr}`.")
             logger.warning(f"Expression exceeds limits: '{expr}'")
             return
 
@@ -74,4 +74,4 @@ async def roll(ctx, dice_input: str):
     logger.info(f"Final total: {total}")
     logger.info(f"Response lines: {response_lines}")
 
-    await ctx.send("\n".join(response_lines))
+    await interaction.response.send_message("\n".join(response_lines))
