@@ -22,6 +22,7 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
 bot = commands.Bot(intents=intents,
+                   command_prefix="/",
                    allowed = discord.AllowedMentions.all()
 )
 
