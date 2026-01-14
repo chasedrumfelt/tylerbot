@@ -9,7 +9,7 @@ import constants
 from yt_dlp import YoutubeDL # type: ignore
 
 from fortnite_fetch import start_daily_shop_task
-from water_check import start_daily_water_check_task
+from water_check import setup as setup_water_check
 from dice_roller import roll as dice_roll_command
 from familyguy_cutaway import search_youtube_video
 from quote_puller import get_random_quote
@@ -19,6 +19,7 @@ load_dotenv()
 
 intents = discord.Intents.default()
 intents.message_content = True
+intents.reactions = True
 bot = commands.Bot(command_prefix="!", 
                    intents=intents,
                    allowed = discord.AllowedMentions.all()
@@ -47,7 +48,14 @@ RARE_RESPONSES = [
     "On god",
     "Could be the move",
     "Hell yeah!",
-    "man door hand hook car door"
+    "man door hand hook car door",
+    "idk man, you do you",
+    "I don't know that I'd go that far",
+    "I gotta be real...that's gas :fire:",
+    "Shake the haters off like a dog do when it's wet",
+    "Sometimes a man gets sad",
+    "Lmfaooooo",
+    "I'm gonna go nap"
 ]
 
 # on startup
@@ -56,7 +64,7 @@ async def on_ready():
     logging.info(f"Bot ready: {bot.user}")
     # Start background tasks
     start_daily_shop_task(bot)
-    start_daily_water_check_task(bot)
+    await setup_water_check(bot)
 
 # on message
 @bot.event
@@ -111,6 +119,7 @@ async def on_message(message):
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
+        return
 
     await bot.process_commands(message)
 
@@ -118,9 +127,15 @@ async def on_message(message):
 # on command
 @bot.command(name="watercheck")
 async def watercheck(ctx):
-    watercheck_role = constants.GAMERS_ROLE_ID
+    watercheck_role = constants.WATERCHECK_ROLE_ID
     role_mention = f"<@&{watercheck_role}>"
-    await ctx.send(f"Hey guys, {role_mention}")
+    message = await ctx.send(f"Hey {role_mention}, water check!")
+    await message.add_reaction('💧')
+    
+    # Update the cog's water_check_message so reactions are tracked
+    water_check_cog = ctx.bot.get_cog("WaterCheck")
+    if water_check_cog:
+        water_check_cog.water_check_message = message
 
 @bot.command(name="feet")
 async def feet(ctx):
@@ -137,5 +152,11 @@ async def quote(ctx):
         await ctx.send("Sorry dude, this one's ferda.")
         return
     await get_random_quote(ctx, constants.QUOTE_CHANNEL)
+
+@bot.command(name="8ball")
+# respond with an entry from rare responses
+async def eight_ball(ctx, *, question: str):
+    response = random.choice(RARE_RESPONSES)
+    await ctx.send(f"🎱 {response}")
 
 bot.run(constants.DISCORD_TOKEN)
