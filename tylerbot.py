@@ -142,6 +142,8 @@ async def watercheck(interaction: discord.Interaction):
     water_check_cog = interaction.client.get_cog("WaterCheck")
     if water_check_cog:
         water_check_cog.water_check_message = message
+    
+    await interaction.followup.send("Water check message sent!", ephemeral=True)
 
 @bot.tree.command(name="feet", description="Noah's favorite thing!")
 async def feet(interaction: discord.Interaction):
@@ -159,10 +161,11 @@ async def quote(interaction: discord.Interaction):
         return
     await get_random_quote(interaction, constants.QUOTE_CHANNEL)
 
-@bot.tree.command(name="8ball", description="Ask the magic 8 ball a question")
+@bot.tree.command(name="8ball", description="Ask the magic 8 ball a question") 
 @app_commands.describe(question="Your question for the magic 8 ball")
 async def eight_ball(interaction: discord.Interaction, question: str):
     response = random.choice(RARE_RESPONSES)
-    await interaction.response.send_message(f"🎱 {response}")
+    await interaction.response.send_message(f"❓ {question}\n🎱 {response}")
+
 
 bot.run(constants.DISCORD_TOKEN)
