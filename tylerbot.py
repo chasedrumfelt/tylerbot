@@ -45,7 +45,14 @@ RARE_RESPONSES = [
     "On god",
     "Could be the move",
     "Hell yeah!",
-    "man door hand hook car door"
+    "man door hand hook car door",
+    "idk man, you do you",
+    "I don't know that I'd go that far",
+    "I gotta be real...that's gas :fire:",
+    "Shake the haters off like a dog do when it's wet",
+    "Sometimes a man gets sad",
+    "Lmfaooooo",
+    "I'm gonna go nap"
 ]
 
 # on startup
@@ -126,5 +133,11 @@ async def feet(ctx):
 # assume that functionality lies in dice_roller.py
 async def roll(ctx, *, dice: str):
     await dice_roll_command(ctx, dice)
+
+@bot.command(name="8ball")
+# respond with an entry from rare responses
+async def eight_ball(ctx, *, question: str):
+    response = random.choice(RARE_RESPONSES)
+    await ctx.send(f"🎱 {response}")
 
 bot.run(constants.DISCORD_TOKEN)
