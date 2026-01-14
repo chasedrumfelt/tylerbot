@@ -21,8 +21,7 @@ load_dotenv()
 intents = discord.Intents.default()
 intents.message_content = True
 intents.reactions = True
-bot = commands.Bot(command_prefix="!", 
-                   intents=intents,
+bot = commands.Bot(intents=intents,
                    allowed = discord.AllowedMentions.all()
 )
 
@@ -128,12 +127,11 @@ async def on_message(message):
         await message.reply(response, mention_author=False)
         return
 
-    await bot.process_commands(message)
-
 
 # on command
 @bot.tree.command(name="watercheck", description="Send a water check message to the watercheck role")
 async def watercheck(interaction: discord.Interaction):
+    await interaction.response.defer()
     watercheck_role = constants.WATERCHECK_ROLE_ID
     role_mention = f"<@&{watercheck_role}>"
     message = await interaction.channel.send(f"Hey {role_mention}, water check!")
@@ -143,8 +141,6 @@ async def watercheck(interaction: discord.Interaction):
     water_check_cog = interaction.client.get_cog("WaterCheck")
     if water_check_cog:
         water_check_cog.water_check_message = message
-    
-    await interaction.response.defer()
 
 @bot.tree.command(name="feet", description="Noah's favorite thing!")
 async def feet(interaction: discord.Interaction):
