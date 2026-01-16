@@ -40,7 +40,8 @@ KEYWORD_RESPONSES = {
     "sclimbos" : "i'll be on",
     "Any gamers" : "i'll be on",
     "Hear me out" : ":ear:",
-    "dr pepper" : "fuck you"
+    "dr pepper" : "fuck you",
+    "ICE" : "fuck ice"
 }
 
 RARE_RESPONSES = [
