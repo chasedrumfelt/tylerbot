@@ -110,7 +110,9 @@ def start_daily_shop_task(bot):
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
                     logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
-
+            else:
+                logger.info("No new skins in the Fortnite shop today")
+                
             # Save current shop for next comparison
             save_current_items(current_skins)
             previous_skins = current_skins

@@ -102,7 +102,7 @@ async def on_message(message):
     if idx != -1:
         logger.info(f"YouTube search triggered by message: {message.content}")
         rest = message.content[idx + len(trigger):].strip()
-        rest = "family guy " + rest  # prepend "family guy" to the search
+        rest = '"family guy" ' + rest  # prepend "family guy" to the search
         if rest:
             logger.info(f"Searching YouTube for: {rest}")
             video_url = await search_youtube_video(rest)
