@@ -10,9 +10,9 @@ from discord.ext import tasks, commands
 logger = logging.getLogger("WaterCheck")
 
 # Allowed window: 9a - 9p EST
-# compensate for UTC offset
-START_HOUR = 4
-END_HOUR = 16
+# Convert EST to UTC (EST is UTC-5)
+START_HOUR = 14  # 9am EST = 2pm UTC
+END_HOUR = 2     # 9pm EST = 2am UTC (next day)
 
 class WaterCheck(commands.Cog):
     def __init__(self, bot):

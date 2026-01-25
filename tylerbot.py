@@ -88,7 +88,7 @@ async def on_message(message):
     
     content = normalize(message.content)
 
-    # Quick "chat can i get a " handler anywhere in the message
+    # "chat can i get a " handler anywhere in the message
     trigger = "chat can i get a "
     idx = content.find(trigger)
     if idx != -1:
@@ -112,6 +112,12 @@ async def on_message(message):
             else:
                 await message.reply("Couldn't find a video for that.", mention_author=False)
             return
+        
+    trigger = "creeper"
+    idx = content.find(trigger)
+    if idx != -1:
+        await message.reply("Aww man", mention_author=False)
+        return
 
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
