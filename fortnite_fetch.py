@@ -35,12 +35,12 @@ def extract_skin_names(shop_data):
         if "brItems" in entry:
             for br_item in entry["brItems"]:
                 item_type = br_item.get("type", {}).get("value", "").lower()
-                item_set = br_item.get("set", {}).get("value", "").lower()
+                item_set = br_item.get("set", {}).get("value", "")
                 # Only include skins/characters
                 if item_type in ("outfit"):
                     name = br_item.get("name")
                     if name:
-                        skins[name] = item_set
+                        skins[name] = item_set if item_set else "idk"
 
     logger.info(f"Extracted {len(skins)} skins from shop data")
     return skins
@@ -107,9 +107,10 @@ def start_daily_shop_task(bot):
             if new_skins:
                 channel = bot.get_channel(constants.GAMER_CHANNEL)
                 if channel:
+                    
                     await channel.send(
                     "**🛒 Fortnite skins currently in the shop:**\n" +
-                    "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
+                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(current_skins.items()))
                     )
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
