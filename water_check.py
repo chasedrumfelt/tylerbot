@@ -66,7 +66,13 @@ class WaterCheck(commands.Cog):
                 now = datetime.datetime.now()
                 
                 # Pick a random hour and minute between START_HOUR and END_HOUR
-                rand_hour = random.randint(START_HOUR, END_HOUR)
+                # Handle case where END_HOUR < START_HOUR (spans midnight)
+                if END_HOUR < START_HOUR:
+                    # Range spans midnight
+                    rand_hour = random.choice(list(range(START_HOUR, 24)) + list(range(0, END_HOUR + 1)))
+                else:
+                    rand_hour = random.randint(START_HOUR, END_HOUR)
+                
                 rand_minute = random.randint(0, 59)
                 rand_second = random.randint(0, 59)
                 target = now.replace(hour=rand_hour, minute=rand_minute, second=rand_second, microsecond=0)
