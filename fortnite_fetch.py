@@ -29,7 +29,7 @@ async def fetch_shop():
 
 def extract_skin_names(shop_data):
     skins = {}
-    entries = shop_data.get("data", {}).get("entries", []).get("set", [])
+    entries = shop_data.get("data", {}).get("entries", {})
 
     for entry in entries:
         if "brItems" in entry:
