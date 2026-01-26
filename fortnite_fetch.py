@@ -35,7 +35,7 @@ def extract_skin_names(shop_data):
         if "brItems" in entry:
             for br_item in entry["brItems"]:
                 item_type = br_item.get("type", {}).get("value", "").lower()
-                item_set = br_item.get("set", {}).get("text", "").lower()
+                item_set = br_item.get("set", {}).get("value", "").lower()
                 # Only include skins/characters
                 if item_type in ("outfit"):
                     name = br_item.get("name")
@@ -73,16 +73,19 @@ def start_daily_shop_task(bot):
         channel = bot.get_channel(constants.GAMER_CHANNEL)
         if not previous_skins:
             shop_data = await fetch_shop()
+            current_skins = {}
             if shop_data:
                 current_skins = extract_skin_names(shop_data)
+            if current_skins and channel:
+                message = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
+                if len(message) <= 2000:
+                    await channel.send(message)
+                    logger.info(f"Posted {len(current_skins)} skins to Discord (first run)")
+                else:
+                    logger.warning(f"Shop message too large ({len(message)} chars), not sending")
             if current_skins:
-                await channel.send(
-                "**🛒 Fortnite skins currently in the shop:**\n" +
-                "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
-                )
-                logger.info(f"Posted {len(current_skins)} skins to Discord (first run)")
-            save_current_items(current_skins)
-            previous_skins = current_skins
+                save_current_items(current_skins)
+                previous_skins = current_skins
 
         # ---------- Daily loop ----------
         while not bot.is_closed():
