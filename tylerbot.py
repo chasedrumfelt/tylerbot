@@ -7,13 +7,12 @@ import re
 import string
 import logging
 import constants
-from yt_dlp import YoutubeDL # type: ignore
 
-from fortnite_fetch import start_daily_shop_task
-from water_check import setup as setup_water_check
-from dice_roller import roll as dice_roll_command
-from familyguy_cutaway import search_youtube_video
-from quote_puller import get_random_quote
+from features.fortnite_fetch import start_daily_shop_task
+from features.water_check import setup as setup_water_check
+from features.dice_roller import roll as dice_roll_command
+from features.familyguy_cutaway import search_youtube_video
+from features.quote_puller import get_random_quote
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
@@ -110,9 +109,10 @@ async def on_message(message):
             if video_url:
                 await message.reply(video_url, mention_author=False)
             else:
-                await message.reply("Couldn't find a video for that.", mention_author=False)
+                await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
         
+    # "creeper" handler
     trigger = "creeper"
     idx = content.find(trigger)
     if idx != -1:
@@ -134,6 +134,8 @@ async def on_message(message):
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
         return
+
+# if more than 3 people are in a voice call, send an image from /images
 
 
 # on command
