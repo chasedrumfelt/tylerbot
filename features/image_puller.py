@@ -40,7 +40,7 @@ async def pull_image(interaction: discord.Interaction, image_name: str = None):
     
     Args:
         interaction: Discord interaction from the slash command
-        image_name: Image filename or 'random' for a random image
+        image_name: Image filename (without extension) or 'random' for a random image
     """
 
     if not image_folder.exists():
@@ -58,14 +58,23 @@ async def pull_image(interaction: discord.Interaction, image_name: str = None):
 
     if image_name and image_name.lower() == "random":
         selected_image = random.choice(image_files)
-    elif image_name and image_name in image_files:
-        selected_image = image_name
+    elif image_name:
+        # Find the image file that matches the name (without extension)
+        matching_images = [f for f in image_files if os.path.splitext(f)[0].lower() == image_name.lower()]
+        if matching_images:
+            selected_image = matching_images[0]
+        else:
+            await interaction.response.send_message(
+                f"Image not found. Available images: {', '.join([os.path.splitext(f)[0] for f in image_files])}", 
+                ephemeral=True
+            )
+            logger.warning(f"Image '{image_name}' not found")
+            return
     else:
         await interaction.response.send_message(
-            f"Image not found. Available images: {', '.join(image_files)}", 
+            "Please select an image or use 'random'.", 
             ephemeral=True
         )
-        logger.warning(f"Image '{image_name}' not found")
         return
 
     image_path = image_folder / selected_image
