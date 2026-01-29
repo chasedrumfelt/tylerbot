@@ -14,7 +14,6 @@ from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
 from features.image_puller import pull_image, image_autocomplete
-from features.image_puller import ImagePuller
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
