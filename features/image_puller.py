@@ -25,7 +25,7 @@ async def image_autocomplete(
                   if f.lower().endswith(('.png', '.jpg', '.jpeg', '.gif', '.webp'))]
     
     # Add "random" option and filter by current input
-    options = ["random"] + sorted(image_files)
+    options = ["random"] + sorted([os.path.splitext(f)[0] for f in image_files])
     
     # Filter based on what user has typed so far
     filtered = [opt for opt in options if opt.lower().startswith(current.lower())]
@@ -42,7 +42,7 @@ async def pull_image(interaction: discord.Interaction, image_name: str = None):
         interaction: Discord interaction from the slash command
         image_name: Image filename or 'random' for a random image
     """
-    
+
     if not image_folder.exists():
         await interaction.response.send_message("Images folder not found.", ephemeral=True)
         logger.error(f"Images folder not found at {image_folder}")
