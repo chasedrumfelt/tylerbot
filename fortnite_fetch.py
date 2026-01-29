@@ -106,15 +106,12 @@ def start_daily_shop_task(bot):
             new_skins = set(current_skins.keys()) - set(previous_skins.keys())
             if new_skins:
                 channel = bot.get_channel(constants.GAMER_CHANNEL)
-                if channel:
-                    
-                    await channel.send(
-                    "**🛒 Fortnite skins currently in the shop:**\n" +
-                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(current_skins.items()))
-                    )
+                message = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
+                if len(message) <= 2000:
+                    await channel.send(message)
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
-                    logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
+                    logger.warning(f"Shop message too large ({len(message)} chars), not sending")
             else:
                 logger.info("No new skins in the Fortnite shop today")
                 
