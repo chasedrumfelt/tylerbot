@@ -40,7 +40,9 @@ KEYWORD_RESPONSES = {
     "Any gamers" : "i'll be on",
     "Hear me out" : ":ear:",
     "dr pepper" : "fuck you",
-    "ICE" : "fuck ice"
+    "ICE" : "fuck ice",
+    "trump" : "fuck trump",
+    "sometimes a man gets sad" : "on god"
 }
 
 RARE_RESPONSES = [
