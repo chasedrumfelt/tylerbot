@@ -7,6 +7,8 @@ import logging
 
 logger = logging.getLogger("ImagePuller")
 
+image_folder = Path(__file__).parent.parent / "images"
+
 
 async def image_autocomplete(
     interaction: discord.Interaction,
@@ -15,7 +17,6 @@ async def image_autocomplete(
     """
     Autocomplete callback that returns available image files.
     """
-    image_folder = Path(__file__).parent.parent.parent / "images"
     
     if not image_folder.exists():
         return []
@@ -41,7 +42,6 @@ async def pull_image(interaction: discord.Interaction, image_name: str = None):
         interaction: Discord interaction from the slash command
         image_name: Image filename or 'random' for a random image
     """
-    image_folder = Path(__file__).parent.parent.parent / "images"
     
     if not image_folder.exists():
         await interaction.response.send_message("Images folder not found.", ephemeral=True)
