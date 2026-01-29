@@ -13,6 +13,8 @@ from features.water_check import setup as setup_water_check
 from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
+from features.image_puller import pull_image, image_autocomplete
+from features.image_puller import ImagePuller
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
@@ -177,6 +179,12 @@ async def quote(interaction: discord.Interaction):
 async def eight_ball(interaction: discord.Interaction, question: str):
     response = random.choice(RARE_RESPONSES)
     await interaction.response.send_message(f"❓ {question}\n🎱 {response}")
+
+@bot.tree.command(name="image", description="Select or randomly pull an image from the images folder")
+@app_commands.describe(image_name="Image filename or 'random' for a random image")
+@app_commands.autocomplete(image_name=image_autocomplete)
+async def image(interaction: discord.Interaction, image_name: str = None):
+    await pull_image(interaction, image_name)
 
 
 bot.run(constants.DISCORD_TOKEN)
