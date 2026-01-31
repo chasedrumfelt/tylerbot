@@ -10,9 +10,9 @@ from discord.ext import tasks, commands
 logger = logging.getLogger("WaterCheck")
 
 # Allowed window: 9a - 9p EST
-# compensate for UTC offset
-START_HOUR = 4
-END_HOUR = 16
+# Convert EST to UTC (EST is UTC-5)
+START_HOUR = 14  # 9am EST = 2pm UTC
+END_HOUR = 2     # 9pm EST = 2am UTC (next day)
 
 class WaterCheck(commands.Cog):
     def __init__(self, bot):
@@ -66,7 +66,13 @@ class WaterCheck(commands.Cog):
                 now = datetime.datetime.now()
                 
                 # Pick a random hour and minute between START_HOUR and END_HOUR
-                rand_hour = random.randint(START_HOUR, END_HOUR)
+                # Handle case where END_HOUR < START_HOUR (spans midnight)
+                if END_HOUR < START_HOUR:
+                    # Range spans midnight
+                    rand_hour = random.choice(list(range(START_HOUR, 24)) + list(range(0, END_HOUR + 1)))
+                else:
+                    rand_hour = random.randint(START_HOUR, END_HOUR)
+                
                 rand_minute = random.randint(0, 59)
                 rand_second = random.randint(0, 59)
                 target = now.replace(hour=rand_hour, minute=rand_minute, second=rand_second, microsecond=0)

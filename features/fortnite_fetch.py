@@ -14,19 +14,9 @@ SHOP_STATE_FILE = "last_shop.json"
 logger = logging.getLogger("FortniteShop")
 
 SHOP_REFRESH_HOUR_UTC = 0  # midnight UTC
-SHOP_REFRESH_MINUTE_UTC = 0
+SHOP_REFRESH_MINUTE_UTC = 5
 
 # ----- HELPER FUNCTIONS -----
-def load_previous_items():
-    if not os.path.exists(SHOP_STATE_FILE):
-        return None
-    with open(SHOP_STATE_FILE, "r") as f:
-        return set(json.load(f))
-
-def save_current_items(items):
-    with open(SHOP_STATE_FILE, "w") as f:
-        json.dump(sorted(items), f)
-
 async def fetch_shop():
     async with aiohttp.ClientSession() as session:
         async with session.get(FORTNITE_SHOP_URL) as resp:
@@ -38,21 +28,32 @@ async def fetch_shop():
             return data
 
 def extract_skin_names(shop_data):
-    skins = set()
-    entries = shop_data.get("data", {}).get("entries", [])
+    skins = {}
+    entries = shop_data.get("data", {}).get("entries", {})
 
     for entry in entries:
         if "brItems" in entry:
             for br_item in entry["brItems"]:
                 item_type = br_item.get("type", {}).get("value", "").lower()
+                item_set = br_item.get("set", {}).get("value", "")
                 # Only include skins/characters
                 if item_type in ("outfit"):
                     name = br_item.get("name")
                     if name:
-                        skins.add(name)
+                        skins[name] = item_set if item_set else "idk"
 
     logger.info(f"Extracted {len(skins)} skins from shop data")
     return skins
+
+def load_previous_items():
+    if not os.path.exists(SHOP_STATE_FILE):
+        return {}
+    with open(SHOP_STATE_FILE, "r") as f:
+        return json.load(f)
+
+def save_current_items(items):
+    with open(SHOP_STATE_FILE, "w") as f:
+        json.dump(items, f, indent=2)
 
 def seconds_until_next_refresh(hour=SHOP_REFRESH_HOUR_UTC, minute=SHOP_REFRESH_MINUTE_UTC):
     now = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -70,18 +71,21 @@ def start_daily_shop_task(bot):
         # ---------- First-run edge case ----------
         previous_skins = load_previous_items()
         channel = bot.get_channel(constants.GAMER_CHANNEL)
-        if previous_skins is None:
+        if not previous_skins:
             shop_data = await fetch_shop()
+            current_skins = {}
             if shop_data:
                 current_skins = extract_skin_names(shop_data)
-                if current_skins:
-                    await channel.send(
-                        "**🛒 Fortnite skins currently in the shop:**\n" +
-                        "\n".join(f"- {skin}" for skin in sorted(current_skins))
-                    )
+            if current_skins and channel:
+                message = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
+                if len(message) <= 2000:
+                    await channel.send(message)
                     logger.info(f"Posted {len(current_skins)} skins to Discord (first run)")
+                else:
+                    logger.warning(f"Shop message too large ({len(message)} chars), not sending")
+            if current_skins:
                 save_current_items(current_skins)
-            previous_skins = current_skins
+                previous_skins = current_skins
 
         # ---------- Daily loop ----------
         while not bot.is_closed():
@@ -98,19 +102,22 @@ def start_daily_shop_task(bot):
                 logger.info("No skins found in shop today")
                 continue
 
-            # Detect new skins
-            new_skins = current_skins - previous_skins
+            # Detect new skins (keys in current that aren't in previous)
+            new_skins = set(current_skins.keys()) - set(previous_skins.keys())
             if new_skins:
                 channel = bot.get_channel(constants.GAMER_CHANNEL)
                 if channel:
+                    
                     await channel.send(
-                        "**🛒 New Fortnite skins today:**\n" +
-                        "\n".join(f"- {skin}" for skin in sorted(new_skins))
+                    "**🛒 Fortnite skins currently in the shop:**\n" +
+                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
                     )
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
                     logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
-
+            else:
+                logger.info("No new skins in the Fortnite shop today")
+                
             # Save current shop for next comparison
             save_current_items(current_skins)
             previous_skins = current_skins

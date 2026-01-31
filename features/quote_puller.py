@@ -5,19 +5,19 @@ import logging
 logger = logging.getLogger("QuotePuller")
 
 
-async def get_random_quote(ctx, channel_id: int):
+async def get_random_quote(interaction, channel_id: int):
     """
     Pulls a random message from a random thread in a specific channel.
     
     Args:
-        ctx: Discord context from the command
+        interaction: Discord interaction from the slash command
         channel_id: The ID of the channel to search for threads
     """
     try:
         # Fetch the channel
-        channel = ctx.bot.get_channel(channel_id)
+        channel = interaction.client.get_channel(channel_id)
         if not channel:
-            await ctx.send(f"Could not find channel with ID {channel_id}")
+            await interaction.response.send_message(f"Could not find channel with ID {channel_id}")
             logger.error(f"Channel with ID {channel_id} not found")
             return
         
@@ -33,7 +33,7 @@ async def get_random_quote(ctx, channel_id: int):
             threads.extend(channel.threads)
         
         if not threads:
-            await ctx.send("No threads found in that channel.")
+            await interaction.response.send_message("No threads found in that channel.")
             logger.warning(f"No threads found in channel {channel_id}")
             return
         
@@ -49,7 +49,7 @@ async def get_random_quote(ctx, channel_id: int):
                 messages.append(message)
         
         if not messages:
-            await ctx.send(f"No user messages found in thread '{random_thread.name}'.")
+            await interaction.response.send_message(f"No user messages found in thread '{random_thread.name}'.")
             logger.warning(f"No messages found in thread {random_thread.name}")
             return
         
@@ -67,10 +67,10 @@ async def get_random_quote(ctx, channel_id: int):
             color=discord.Color.blue()
         )
         
-        await ctx.send(embed=embed)
+        await interaction.response.send_message(embed=embed)
         logger.info(f"Sent quote from {author_name} in thread {thread_name}")
         logger.info(f"Message ID: {random_message.id}")
         
     except Exception as e:
         logger.error(f"Error in get_random_quote: {str(e)}")
-        await ctx.send("An error occurred while fetching a quote.")
+        await interaction.response.send_message("An error occurred while fetching a quote.")
