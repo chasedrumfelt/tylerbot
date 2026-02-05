@@ -1,3 +1,4 @@
 constants.py
 .venv/
 ignore_these/*
+images/*
