@@ -13,6 +13,7 @@ from features.water_check import setup as setup_water_check
 from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
+from features.image_puller import pull_image, image_autocomplete
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
@@ -42,7 +43,8 @@ KEYWORD_RESPONSES = {
     "dr pepper" : "fuck you",
     "ICE" : "fuck ice",
     "trump" : "fuck trump",
-    "sometimes a man gets sad" : "on god"
+    "sometimes a man gets sad" : "on god",
+    "creeper" : "Aww man"
 }
 
 RARE_RESPONSES = [
@@ -58,7 +60,8 @@ RARE_RESPONSES = [
     "Shake the haters off like a dog do when it's wet",
     "Sometimes a man gets sad",
     "Lmfaooooo",
-    "I'm gonna go nap"
+    "I'm gonna go nap",
+    "Including or not including gang violence?"
 ]
 
 # on startup
@@ -115,13 +118,6 @@ async def on_message(message):
                 await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
         
-    # "creeper" handler
-    trigger = "creeper"
-    idx = content.find(trigger)
-    if idx != -1:
-        await message.reply("Aww man", mention_author=False)
-        return
-
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
         keyword_normalized = normalize(keyword)
@@ -137,8 +133,6 @@ async def on_message(message):
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
         return
-
-# if more than 3 people are in a voice call, send an image from /images
 
 
 # on command
@@ -178,6 +172,12 @@ async def quote(interaction: discord.Interaction):
 async def eight_ball(interaction: discord.Interaction, question: str):
     response = random.choice(RARE_RESPONSES)
     await interaction.response.send_message(f"❓ {question}\n🎱 {response}")
+
+@bot.tree.command(name="image", description="Select or randomly pull an image from the images folder")
+@app_commands.describe(image_name="Image filename or 'random' for a random image")
+@app_commands.autocomplete(image_name=image_autocomplete)
+async def image(interaction: discord.Interaction, image_name: str = None):
+    await pull_image(interaction, image_name)
 
 
 bot.run(constants.DISCORD_TOKEN)
