@@ -18,42 +18,59 @@ SHOP_REFRESH_MINUTE_UTC = 5
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():
+    logger.debug(f"Fetching shop from {FORTNITE_SHOP_URL}")
     async with aiohttp.ClientSession() as session:
         async with session.get(FORTNITE_SHOP_URL) as resp:
+            logger.debug(f"Shop API response status: {resp.status}")
             if resp.status != 200:
                 logger.warning(f"Failed to fetch Fortnite shop: HTTP {resp.status}")
                 return None
             data = await resp.json()
             logger.info("Fetched Fortnite shop successfully")
+            logger.debug(f"Shop data keys: {data.keys() if isinstance(data, dict) else 'not a dict'}")
             return data
 
 def extract_skin_names(shop_data):
     skins = {}
     entries = shop_data.get("data", {}).get("entries", {})
+    logger.debug(f"Found {len(entries)} entries in shop data")
 
-    for entry in entries:
+    for idx, entry in enumerate(entries):
+        logger.debug(f"Processing entry {idx}: keys={entry.keys()}")
         if "brItems" in entry:
+            logger.debug(f"Entry {idx} has {len(entry['brItems'])} brItems")
             for br_item in entry["brItems"]:
                 item_type = br_item.get("type", {}).get("value", "").lower()
                 item_set = br_item.get("set", {}).get("value", "")
+                item_name = br_item.get("name")
+                logger.debug(f"BR Item: name={item_name}, type={item_type}, set={item_set}")
                 # Only include skins/characters
                 if item_type in ("outfit"):
-                    name = br_item.get("name")
-                    if name:
-                        skins[name] = item_set if item_set else "idk"
+                    if item_name:
+                        skins[item_name] = item_set if item_set else "idk"
+                        logger.debug(f"Added skin: {item_name}")
+        else:
+            logger.debug(f"Entry {idx} has no brItems")
 
     logger.info(f"Extracted {len(skins)} skins from shop data")
+    logger.debug(f"Extracted skins: {list(skins.keys())}")
     return skins
 
 def load_previous_items():
     if not os.path.exists(SHOP_STATE_FILE):
+        logger.debug(f"Shop state file {SHOP_STATE_FILE} does not exist")
         return {}
+    logger.debug(f"Loading shop state from {SHOP_STATE_FILE}")
     with open(SHOP_STATE_FILE, "r") as f:
-        return json.load(f)
+        items = json.load(f)
+        logger.debug(f"Loaded {len(items)} previous items")
+        return items
 
 def save_current_items(items):
+    logger.debug(f"Saving {len(items)} items to {SHOP_STATE_FILE}")
     with open(SHOP_STATE_FILE, "w") as f:
         json.dump(items, f, indent=2)
+    logger.debug("Shop state saved successfully")
 
 def seconds_until_next_refresh(hour=SHOP_REFRESH_HOUR_UTC, minute=SHOP_REFRESH_MINUTE_UTC):
     now = datetime.datetime.now(tz=datetime.timezone.utc)
@@ -71,6 +88,7 @@ def start_daily_shop_task(bot):
         # ---------- First-run edge case ----------
         previous_skins = load_previous_items()
         channel = bot.get_channel(constants.GAMER_CHANNEL)
+        logger.debug(f"First-run check: channel={channel}, previous_skins count={len(previous_skins)}")
         if not previous_skins:
             shop_data = await fetch_shop()
             current_skins = {}
@@ -95,6 +113,7 @@ def start_daily_shop_task(bot):
 
             shop_data = await fetch_shop()
             if not shop_data:
+                logger.warning("Failed to fetch shop data, skipping this cycle")
                 continue
 
             current_skins = extract_skin_names(shop_data)
@@ -104,14 +123,15 @@ def start_daily_shop_task(bot):
 
             # Detect new skins (keys in current that aren't in previous)
             new_skins = set(current_skins.keys()) - set(previous_skins.keys())
+            logger.debug(f"Previous skins: {len(previous_skins)}, Current skins: {len(current_skins)}, New skins: {len(new_skins)}")
             if new_skins:
+                logger.debug(f"New skins detected: {new_skins}")
                 channel = bot.get_channel(constants.GAMER_CHANNEL)
+                logger.debug(f"Channel lookup result: {channel}")
                 if channel:
-                    
-                    await channel.send(
-                    "**🛒 Fortnite skins currently in the shop:**\n" +
-                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
-                    )
+                    message_content = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
+                    logger.debug(f"Sending message ({len(message_content)} chars) to channel {constants.GAMER_CHANNEL}")
+                    await channel.send(message_content)
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:
                     logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
