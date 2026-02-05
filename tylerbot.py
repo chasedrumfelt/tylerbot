@@ -90,13 +90,14 @@ async def on_message(message):
     content = normalize(message.content)
 
     # "chat can i get a " handler anywhere in the message
-    trigger = "chat can i get a "
-    idx = content.find(trigger)
-    if idx != -1:
-        rest = message.content[idx + len(trigger):].strip()
-        if rest:
-            await message.reply(rest, mention_author=False)
-            return
+    triggers = ["tylerbot can i get a ", "tbot can i get a "]
+    for trigger in triggers:
+        idx = content.find(trigger)
+        if idx != -1:
+            rest = message.content[idx + len(trigger):].strip()
+            if rest:
+                await message.reply(rest, mention_author=False)
+                return
 
     # "that reminds me of the time that i " handler for YouTube search
     trigger = "that reminds me of the time that i "
