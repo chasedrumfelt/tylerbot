@@ -110,7 +110,7 @@ def start_daily_shop_task(bot):
                     
                     await channel.send(
                     "**🛒 Fortnite skins currently in the shop:**\n" +
-                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(current_skins.items()))
+                    "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
                     )
                     logger.info(f"Posted {len(new_skins)} new skins to Discord")
                 else:

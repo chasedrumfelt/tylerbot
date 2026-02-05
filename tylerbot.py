@@ -60,7 +60,8 @@ RARE_RESPONSES = [
     "Shake the haters off like a dog do when it's wet",
     "Sometimes a man gets sad",
     "Lmfaooooo",
-    "I'm gonna go nap"
+    "I'm gonna go nap",
+    "Including or not including gang violence?"
 ]
 
 # on startup
