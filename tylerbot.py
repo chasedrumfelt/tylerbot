@@ -43,7 +43,8 @@ KEYWORD_RESPONSES = {
     "dr pepper" : "fuck you",
     "ICE" : "fuck ice",
     "trump" : "fuck trump",
-    "sometimes a man gets sad" : "on god"
+    "sometimes a man gets sad" : "on god",
+    "creeper" : "Aww man"
 }
 
 RARE_RESPONSES = [
@@ -115,13 +116,6 @@ async def on_message(message):
                 await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
         
-    # "creeper" handler
-    trigger = "creeper"
-    idx = content.find(trigger)
-    if idx != -1:
-        await message.reply("Aww man", mention_author=False)
-        return
-
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
         keyword_normalized = normalize(keyword)
@@ -137,8 +131,6 @@ async def on_message(message):
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
         return
-
-# if more than 3 people are in a voice call, send an image from /images
 
 
 # on command
