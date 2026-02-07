@@ -84,10 +84,9 @@ def start_daily_shop_task(bot):
     async def shop_loop():
         await bot.wait_until_ready()
         logger.info("Fortnite shop task started")
-
+        channel = bot.get_channel(constants.GAMER_CHANNEL)
         # ---------- First-run edge case ----------
         previous_skins = load_previous_items()
-        channel = bot.get_channel(constants.GAMER_CHANNEL)
         logger.debug(f"First-run check: channel={channel}, previous_skins count={len(previous_skins)}")
         if not previous_skins:
             shop_data = await fetch_shop()
@@ -126,8 +125,6 @@ def start_daily_shop_task(bot):
             logger.debug(f"Previous skins: {len(previous_skins)}, Current skins: {len(current_skins)}, New skins: {len(new_skins)}")
             if new_skins:
                 logger.debug(f"New skins detected: {new_skins}")
-                channel = bot.get_channel(constants.GAMER_CHANNEL)
-                logger.debug(f"Channel lookup result: {channel}")
                 if channel:
                     message_content = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
                     logger.debug(f"Sending message ({len(message_content)} chars) to channel {constants.GAMER_CHANNEL}")

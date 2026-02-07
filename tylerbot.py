@@ -61,7 +61,8 @@ RARE_RESPONSES = [
     "Sometimes a man gets sad",
     "Lmfaooooo",
     "I'm gonna go nap",
-    "Including or not including gang violence?"
+    "Including or not including gang violence?",
+    ":smiling_imp:"
 ]
 
 # on startup
