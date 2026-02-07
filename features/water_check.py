@@ -7,7 +7,7 @@ import os
 import constants
 from discord.ext import tasks, commands
 
-logger = logging.getLogger("WaterCheck")
+logger = logging.getLogger(__name__)
 
 # Allowed window: 9a - 9p EST
 # Convert EST to UTC (EST is UTC-5)

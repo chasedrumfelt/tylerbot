@@ -27,11 +27,12 @@ bot = commands.Bot(intents=intents,
 )
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='[%(asctime)s] %(levelname)s:%(name)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-logger = logging.getLogger("TylerBot")
+
+logger = logging.getLogger(__name__)
 
 KEYWORD_RESPONSES = {
     "69" : "Nice",

@@ -5,7 +5,7 @@ import random
 import os
 import logging
 
-logger = logging.getLogger("ImagePuller")
+logger = logging.getLogger(__name__)
 
 image_folder = Path(__file__).parent.parent / "images"
 

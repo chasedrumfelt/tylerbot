@@ -11,7 +11,7 @@ from discord.ext import tasks
 FORTNITE_SHOP_URL = "https://fortnite-api.com/v2/shop"
 SHOP_STATE_FILE = "last_shop.json"
 
-logger = logging.getLogger("FortniteShop")
+logger = logging.getLogger(__name__)
 
 SHOP_REFRESH_HOUR_UTC = 0  # midnight UTC
 SHOP_REFRESH_MINUTE_UTC = 5
@@ -107,7 +107,7 @@ def start_daily_shop_task(bot):
         # ---------- Daily loop ----------
         while not bot.is_closed():
             delay = seconds_until_next_refresh()
-            logger.info(f"[FortniteShop] Next shop check in {int(delay)} seconds")
+            logger.info(f"Next shop check in {int(delay)} seconds")
             await asyncio.sleep(delay)
 
             shop_data = await fetch_shop()
