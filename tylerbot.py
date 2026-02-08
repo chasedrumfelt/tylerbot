@@ -129,7 +129,7 @@ async def on_message(message):
         if re.search(pattern, content):
             await message.reply(response, mention_author=False)
             return
-
+        
     # chance for rare responses
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
