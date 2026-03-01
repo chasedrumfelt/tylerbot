@@ -27,11 +27,12 @@ bot = commands.Bot(intents=intents,
 )
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=logging.DEBUG,
     format='[%(asctime)s] %(levelname)s:%(name)s: %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S'
 )
-logger = logging.getLogger("TylerBot")
+
+logger = logging.getLogger(__name__)
 
 KEYWORD_RESPONSES = {
     "69" : "Nice",
@@ -43,7 +44,8 @@ KEYWORD_RESPONSES = {
     "dr pepper" : "fuck you",
     "ICE" : "fuck ice",
     "trump" : "fuck trump",
-    "sometimes a man gets sad" : "on god"
+    "sometimes a man gets sad" : "on god",
+    "creeper" : "Aww man"
 }
 
 RARE_RESPONSES = [
@@ -60,7 +62,8 @@ RARE_RESPONSES = [
     "Sometimes a man gets sad",
     "Lmfaooooo",
     "I'm gonna go nap",
-    "Including or not including gang violence?"
+    "Including or not including gang violence?",
+    ":smiling_imp:"
 ]
 
 # on startup
@@ -92,13 +95,14 @@ async def on_message(message):
     content = normalize(message.content)
 
     # "chat can i get a " handler anywhere in the message
-    trigger = "chat can i get a "
-    idx = content.find(trigger)
-    if idx != -1:
-        rest = message.content[idx + len(trigger):].strip()
-        if rest:
-            await message.reply(rest, mention_author=False)
-            return
+    triggers = ["tylerbot can i get a ", "tbot can i get a "]
+    for trigger in triggers:
+        idx = content.find(trigger)
+        if idx != -1:
+            rest = message.content[idx + len(trigger):].strip()
+            if rest:
+                await message.reply(rest, mention_author=False)
+                return
 
     # "that reminds me of the time that i " handler for YouTube search
     trigger = "that reminds me of the time that i "
@@ -116,13 +120,6 @@ async def on_message(message):
                 await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
         
-    # "creeper" handler
-    trigger = "creeper"
-    idx = content.find(trigger)
-    if idx != -1:
-        await message.reply("Aww man", mention_author=False)
-        return
-
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
         keyword_normalized = normalize(keyword)
@@ -132,14 +129,12 @@ async def on_message(message):
         if re.search(pattern, content):
             await message.reply(response, mention_author=False)
             return
-
+        
     # chance for rare responses
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
         await message.reply(response, mention_author=False)
         return
-
-# if more than 3 people are in a voice call, send an image from /images
 
 
 # on command

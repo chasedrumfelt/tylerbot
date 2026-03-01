@@ -1,7 +1,7 @@
 import logging
 import yt_dlp
 
-logger = logging.getLogger("FamilyGuyCutaway")
+logger = logging.getLogger(__name__)
 
 async def search_youtube_video(query: str) -> str | None:
     """

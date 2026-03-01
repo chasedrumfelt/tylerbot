@@ -6,12 +6,7 @@ import random
 import re
 import logging
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,  # INFO level will show messages in console
-    format="%(asctime)s [%(levelname)s] %(message)s"
-)
-logger = logging.getLogger("dice_roller")
+logger = logging.getLogger(__name__)
 
 async def roll(interaction, dice_input: str):
     logger.info(f"Original input: '{dice_input}'")

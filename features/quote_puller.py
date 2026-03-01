@@ -2,7 +2,7 @@ import discord
 import random
 import logging
 
-logger = logging.getLogger("QuotePuller")
+logger = logging.getLogger(__name__)
 
 
 async def get_random_quote(interaction, channel_id: int):
