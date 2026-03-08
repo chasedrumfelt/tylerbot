@@ -184,7 +184,11 @@ async def image(interaction: discord.Interaction, image_name: str = None):
 
 @bot.tree.command(name="birds", description="Get recent notable bird observations from eBird")
 @app_commands.describe(region="Region code (e.g., 'US', 'CA-ON')")
-@app_commands.autocomplete(region=lambda interaction, current: [code for code in REGION_CODES.keys() if code.lower().startswith(current.lower())])
+@app_commands.autocomplete(region=lambda interaction, current: [
+    app_commands.Choice(name=code, value=code) 
+    for code in REGION_CODES.keys() 
+    if code.lower().startswith(current.lower())
+])
 async def birds(interaction: discord.Interaction, region: str = "US"):
     await get_notable_birds(interaction, region)
 
