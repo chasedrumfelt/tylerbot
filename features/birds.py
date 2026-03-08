@@ -52,8 +52,19 @@ async def get_notable_birds(interaction: discord.Interaction, region: str):
             description="Recent notable sightings from eBird"
         )
         
-        for idx, bird in enumerate(data[:10], 1):
+        seen_species = set()
+        field_count = 0
+        
+        for bird in data:
             species = bird.get('comName', 'Unknown Species')
+            
+            # Skip if we've already added this species
+            if species in seen_species:
+                continue
+            
+            seen_species.add(species)
+            field_count += 1
+            
             sci_name = bird.get('sciName', '')
             location = bird.get('locName', 'Unknown Location')
             date = bird.get('obsDt', 'Unknown Date')
@@ -66,10 +77,14 @@ async def get_notable_birds(interaction: discord.Interaction, region: str):
             value = "\n".join(filter(None, value_parts))
             
             embed.add_field(
-                name=f"{idx}. {species}",
+                name=f"{field_count}. {species}",
                 value=value,
                 inline=False
             )
+            
+            # Stop after 10 unique species
+            if field_count >= 10:
+                break
         
         embed.set_footer(text="Data from eBird")
         
