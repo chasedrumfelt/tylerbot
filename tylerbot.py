@@ -14,6 +14,7 @@ from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
 from features.image_puller import pull_image, image_autocomplete
+from features.birds import REGION_CODES, get_notable_birds
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
@@ -180,6 +181,12 @@ async def eight_ball(interaction: discord.Interaction, question: str):
 @app_commands.autocomplete(image_name=image_autocomplete)
 async def image(interaction: discord.Interaction, image_name: str = None):
     await pull_image(interaction, image_name)
+
+@bot.tree.command(name="birds", description="Get recent notable bird observations from eBird")
+@app_commands.describe(region="Region code (e.g., 'US', 'CA-ON')")
+@app_commands.autocomplete(region=lambda interaction, current: [code for code in REGION_CODES.keys() if code.lower().startswith(current.lower())])
+async def birds(interaction: discord.Interaction, region: str = "US"):
+    await get_notable_birds(interaction, region)
 
 
 bot.run(constants.DISCORD_TOKEN)
