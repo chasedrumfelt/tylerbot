@@ -1,9 +1,9 @@
 import discord
-import requests
+import requests # type: ignore
 import constants
 from discord.ext import commands
 
-# constants
+
 BIRD_API_BASE = "https://api.ebird.org/v2/data/obs"
 
 # region codes
@@ -19,13 +19,6 @@ headers = {
 }
 
 async def get_notable_birds(interaction: discord.Interaction, region: str):
-    """
-    Fetch recent notable bird observations from eBird API for a given region.
-    
-    Args:
-        interaction: Discord interaction object
-        region: Region code (e.g., "US", "CA-ON" for Ontario). Defaults to "US"
-    """
     await interaction.response.defer()
     
     try:
@@ -69,8 +62,6 @@ async def get_notable_birds(interaction: discord.Interaction, region: str):
             
             sci_name = bird.get('sciName', '')
             location = bird.get('locName', 'Unknown Location')
-            date = bird.get('obsDt', 'Unknown Date')
-            count = bird.get('howMany', 1)
             
             # Build value string with available information
             value_parts = [f"*{sci_name}*" if sci_name else ""]
