@@ -189,7 +189,7 @@ async def region_autocomplete(interaction: discord.Interaction, current: str):
         if code.lower().startswith(current.lower())
     ]
 @bot.tree.command(name="birds", description="Get recent notable bird observations from eBird")
-@app_commands.describe(region="The major city you reside in")
+@app_commands.describe(region="The county you reside in")
 @app_commands.autocomplete(region=region_autocomplete)
 async def birds(interaction: discord.Interaction, region: str = "US"):
     await get_notable_birds(interaction, region)

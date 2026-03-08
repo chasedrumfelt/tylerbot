@@ -8,8 +8,10 @@ BIRD_API_BASE = "https://api.ebird.org/v2/data/obs"
 
 # region codes
 REGION_CODES = {
-    "Savannah": "US-GA-051",
-    "Jacksonville": "US-FL-019"
+    "Chatham": "US-GA-051",
+    "Clay": "US-FL-019",
+    "Brevard": "US-FL-009",
+    "Pinellas": "US-FL-103"
 }
 
 headers = {
