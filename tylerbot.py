@@ -182,13 +182,16 @@ async def eight_ball(interaction: discord.Interaction, question: str):
 async def image(interaction: discord.Interaction, image_name: str = None):
     await pull_image(interaction, image_name)
 
+async def region_autocomplete(interaction: discord.Interaction, current: str):
+    return [
+        app_commands.Choice(name=code, value=code) 
+        for code in REGION_CODES.keys() 
+        if code.lower().startswith(current.lower())
+    ]
+
 @bot.tree.command(name="birds", description="Get recent notable bird observations from eBird")
-@app_commands.describe(region="Region code (e.g., 'US', 'CA-ON')")
-@app_commands.autocomplete(region=lambda interaction, current: [
-    app_commands.Choice(name=code, value=code) 
-    for code in REGION_CODES.keys() 
-    if code.lower().startswith(current.lower())
-])
+@app_commands.describe(region="The major city you reside in")
+@app_commands.autocomplete(region=region_autocomplete)
 async def birds(interaction: discord.Interaction, region: str = "US"):
     await get_notable_birds(interaction, region)
 
