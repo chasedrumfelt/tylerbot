@@ -180,6 +180,9 @@ async def quote(interaction: discord.Interaction):
 @app_commands.describe(question="Your question for the magic 8 ball")
 async def eight_ball(interaction: discord.Interaction, question: str):
     response = random.choice(RARE_RESPONSES)
+    if "$last_word" in response:
+        last_word = question.split()[-1] if question.split() else ""
+        response = response.replace("$last_word", last_word)
     await interaction.response.send_message(f"❓ {question}\n🎱 {response}")
 
 @bot.tree.command(name="image", description="Select or randomly pull an image from the images folder")
