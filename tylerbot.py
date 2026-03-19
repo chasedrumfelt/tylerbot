@@ -63,7 +63,8 @@ RARE_RESPONSES = [
     "Lmfaooooo",
     "I'm gonna go nap",
     "Including or not including gang violence?",
-    ":smiling_imp:"
+    ":smiling_imp:",
+    "Google, show me this guy's $last_word"
 ]
 
 # on startup
@@ -85,6 +86,9 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
+    
+    # grab last word of message
+    last_word = message.content.split()[-1] if message.content.split() else ""
 
     # normalize message
     def normalize(message):
@@ -129,10 +133,13 @@ async def on_message(message):
         if re.search(pattern, content):
             await message.reply(response, mention_author=False)
             return
+
         
     # chance for rare responses
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
+        if "$last_word" in response:
+            response = response.replace("$last_word", last_word)
         await message.reply(response, mention_author=False)
         return
 
