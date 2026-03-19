@@ -30,7 +30,7 @@ async def fetch_shop():
             logger.debug(f"Shop data keys: {data.keys() if isinstance(data, dict) else 'not a dict'}")
             return data
 
-def extract_skin_names(shop_data):
+def extractSkinsSetData(shop_data):
     skins = {}
     entries = shop_data.get("data", {}).get("entries", {})
     logger.debug(f"Found {len(entries)} entries in shop data")
@@ -93,7 +93,7 @@ def start_daily_shop_task(bot):
                 shop_data = await fetch_shop()
                 current_skins = {}
                 if shop_data:
-                    current_skins = extract_skin_names(shop_data)
+                    current_skins = extractSkinsSetData(shop_data)
                 if current_skins and channel:
                     message = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} : ({item_set})" for skin, item_set in sorted(current_skins.items()))
                     if len(message) <= 2000:
@@ -116,7 +116,7 @@ def start_daily_shop_task(bot):
                     logger.warning("Failed to fetch shop data, skipping this cycle")
                     continue
 
-                current_skins = extract_skin_names(shop_data)
+                current_skins = extractSkinsSetData(shop_data)
                 if not current_skins:
                     logger.info("No skins found in shop today")
                     continue
@@ -127,9 +127,9 @@ def start_daily_shop_task(bot):
                 if new_skins:
                     logger.debug(f"New skins detected: {new_skins}")
                     if channel:
-                        message_content = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
-                        logger.debug(f"Sending message ({len(message_content)} chars) to channel {constants.GAMER_CHANNEL}")
-                        await channel.send(message_content)
+                        message = "**🛒 Fortnite skins currently in the shop:**\n" + "\n".join(f"- {skin} ({item_set})" for skin, item_set in sorted(new_skins.items()))
+                        logger.debug(f"Sending message ({len(message)} chars) to channel {constants.GAMER_CHANNEL}")
+                        await channel.send(message)
                         logger.info(f"Posted {len(new_skins)} new skins to Discord")
                     else:
                         logger.warning(f"Channel {constants.GAMER_CHANNEL} not found for daily check")
