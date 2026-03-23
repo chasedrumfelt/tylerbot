@@ -14,6 +14,7 @@ from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
 from features.image_puller import pull_image, image_autocomplete
+from features.dictionary import get_definition
 from features.birds import REGION_CODES, get_notable_birds
 
 from dotenv import load_dotenv # type: ignore
@@ -46,7 +47,9 @@ KEYWORD_RESPONSES = {
     "ICE" : "fuck ice",
     "trump" : "fuck trump",
     "sometimes a man gets sad" : "on god",
-    "creeper" : "Aww man"
+    "creeper" : "Aww man",
+    "cnat" : "*cannot",
+    "cnan" : "*can"
 }
 
 RARE_RESPONSES = [
@@ -64,7 +67,8 @@ RARE_RESPONSES = [
     "Lmfaooooo",
     "I'm gonna go nap",
     "Including or not including gang violence?",
-    ":smiling_imp:"
+    ":smiling_imp:",
+    "Google, show me this guy's $last_word"
 ]
 
 # on startup
@@ -86,6 +90,9 @@ async def on_ready():
 async def on_message(message):
     if message.author == bot.user:
         return
+    
+    # grab last word of message
+    last_word = message.content.split()[-1] if message.content.split() else ""
 
     # normalize message
     def normalize(message):
@@ -121,6 +128,17 @@ async def on_message(message):
                 await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
         
+    # "tbot define _" handler for Dictionary search
+    triggers = ["tylerbot define ", "tbot define "]
+    for trigger in triggers:
+        idx = content.find(trigger)
+        if idx != -1:
+            rest = message.content[idx + len(trigger):].strip()
+            if rest:
+                definition = await get_definition(rest)
+                await message.reply(definition, mention_author=False)
+                return
+        
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
         keyword_normalized = normalize(keyword)
@@ -130,10 +148,13 @@ async def on_message(message):
         if re.search(pattern, content):
             await message.reply(response, mention_author=False)
             return
+
         
     # chance for rare responses
     if random.random() < 0.01:  # 1% chance
         response = random.choice(RARE_RESPONSES)
+        if "$last_word" in response:
+            response = response.replace("$last_word", last_word)
         await message.reply(response, mention_author=False)
         return
 
@@ -174,6 +195,9 @@ async def quote(interaction: discord.Interaction):
 @app_commands.describe(question="Your question for the magic 8 ball")
 async def eight_ball(interaction: discord.Interaction, question: str):
     response = random.choice(RARE_RESPONSES)
+    if "$last_word" in response:
+        last_word = question.split()[-1] if question.split() else ""
+        response = response.replace("$last_word", last_word)
     await interaction.response.send_message(f"❓ {question}\n🎱 {response}")
 
 @bot.tree.command(name="image", description="Select or randomly pull an image from the images folder")
