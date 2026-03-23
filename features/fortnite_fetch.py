@@ -9,12 +9,30 @@ from discord.ext import tasks
 
 # ----- CONFIG -----
 FORTNITE_SHOP_URL = "https://fortnite-api.com/v2/shop"
+PLAYER_STATS_URL = "https://fortnite-api.com/v2/stats/br/v2"
 SHOP_STATE_FILE = "last_shop.json"
 
 logger = logging.getLogger(__name__)
 
 SHOP_REFRESH_HOUR_UTC = 0  # midnight UTC
 SHOP_REFRESH_MINUTE_UTC = 5
+
+
+#----- PLAYER STATS -----
+async def fetch_player_stats(userAcctId):
+    url = f"{PLAYER_STATS_URL}/{userAcctId}"
+    logger.debug(f"Fetching player stats from {url}")
+    headers = {"Authorization": constants.FORTNITE_API_KEY}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers) as resp:
+            logger.debug(f"Player stats API response status: {resp.status}")
+            if resp.status != 200:
+                logger.warning(f"Failed to fetch player stats: HTTP {resp.status}")
+                return None
+            data = await resp.json()
+            logger.info("Fetched player stats successfully")
+            return data
+        
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():

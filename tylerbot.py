@@ -9,6 +9,7 @@ import logging
 import constants
 
 from features.fortnite_fetch import start_daily_shop_task
+from features.fortnite_fetch import fetch_player_stats
 from features.water_check import setup as setup_water_check
 from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
@@ -217,6 +218,16 @@ async def region_autocomplete(interaction: discord.Interaction, current: str):
 @app_commands.autocomplete(region=region_autocomplete)
 async def birds(interaction: discord.Interaction, region: str = "US"):
     await get_notable_birds(interaction, region)
+
+@bot.tree.command(name="fortniteStats", description="Get your Fortnite stats")
+async def fortnite_stats(interaction: discord.Interaction):
+    user_id = interaction.user.id
+    if user_id not in constants.FORTNITE_ACCT_IDS:
+        await interaction.response.send_message("You don't have a Fortnite account linked.", ephemeral=True)
+        return
+    else:
+        userAcctId = constants.FORTNITE_ACCT_IDS[user_id]
+    await fetch_player_stats(userAcctId)
 
 
 bot.run(constants.DISCORD_TOKEN)
