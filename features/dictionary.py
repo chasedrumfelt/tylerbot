@@ -24,7 +24,7 @@ async def get_definition(word: str) -> str:
                                 if definitions:
                                     for i, definition_obj in enumerate(definitions, 1):
                                         definition_text = definition_obj.get("definition", "No definition found.")
-                                        result += f" \t{i}. {definition_text}\n"
+                                        result += f"{i}. {definition_text}\n"
                                 else:
                                     result += "  No definitions found.\n"
                             logger.info(f"Definition for '{word}' fetched successfully.")
