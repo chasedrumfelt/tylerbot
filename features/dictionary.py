@@ -6,6 +6,7 @@ logger = logging.getLogger(__name__)
 async def get_definition(word: str) -> str:
     url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
     try:
+        logger.info(f"Fetching definition for '{word}'...")
         async with aiohttp.ClientSession() as session:
             async with session.get(url) as resp:
                 if resp.status == 200:
@@ -19,13 +20,14 @@ async def get_definition(word: str) -> str:
                             for meaning in meanings:
                                 part_of_speech = meaning.get("partOfSpeech", "Unknown")
                                 definitions = meaning.get("definitions", [])
-                                result += f"\n*{part_of_speech}*:"
+                                result += f"\n*{part_of_speech}*:\n"
                                 if definitions:
                                     for i, definition_obj in enumerate(definitions, 1):
                                         definition_text = definition_obj.get("definition", "No definition found.")
-                                        result += f"  {i}. {definition_text}\n"
+                                        result += f" \t{i}. {definition_text}\n"
                                 else:
                                     result += "  No definitions found.\n"
+                            logger.info(f"Definition for '{word}' fetched successfully.")
                             return result.strip()
                     return "No definition found."
                 else:
