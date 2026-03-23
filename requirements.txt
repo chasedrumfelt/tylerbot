@@ -4,3 +4,4 @@ python-dotenv
 aiohttp
 asyncio
 yt_dlp
+requests
