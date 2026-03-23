@@ -14,6 +14,7 @@ from features.dice_roller import roll as dice_roll_command
 from features.familyguy_cutaway import search_youtube_video
 from features.quote_puller import get_random_quote
 from features.image_puller import pull_image, image_autocomplete
+from features.dictionary import get_definition
 
 from dotenv import load_dotenv # type: ignore
 load_dotenv()
@@ -45,7 +46,9 @@ KEYWORD_RESPONSES = {
     "ICE" : "fuck ice",
     "trump" : "fuck trump",
     "sometimes a man gets sad" : "on god",
-    "creeper" : "Aww man"
+    "creeper" : "Aww man",
+    "cnat" : "*cannot",
+    "cnan" : "*can"
 }
 
 RARE_RESPONSES = [
@@ -123,6 +126,17 @@ async def on_message(message):
             else:
                 await message.reply("Yeah idk man, I got nothing for that.", mention_author=False)
             return
+        
+    # "tbot define _" handler for Dictionary search
+    triggers = ["tylerbot define ", "tbot define "]
+    for trigger in triggers:
+        idx = content.find(trigger)
+        if idx != -1:
+            rest = message.content[idx + len(trigger):].strip()
+            if rest:
+                definition = await get_definition(rest)
+                await message.reply(definition, mention_author=False)
+                return
         
     # Check for keyword responses
     for keyword, response in KEYWORD_RESPONSES.items():
