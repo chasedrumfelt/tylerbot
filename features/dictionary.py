@@ -19,7 +19,7 @@ async def get_definition(word: str) -> str:
                             for meaning in meanings:
                                 part_of_speech = meaning.get("partOfSpeech", "Unknown")
                                 definitions = meaning.get("definitions", [])
-                                result += f"\n*{part_of_speech}*:\n"
+                                result += f"\n*{part_of_speech}*:"
                                 if definitions:
                                     for i, definition_obj in enumerate(definitions, 1):
                                         definition_text = definition_obj.get("definition", "No definition found.")
@@ -29,7 +29,7 @@ async def get_definition(word: str) -> str:
                             return result.strip()
                     return "No definition found."
                 else:
-                    return f"Error fetching definition: HTTP {resp.status}"
+                    raise Exception
     except Exception as e:
         logger.error(f"Error fetching definition for '{word}': {e}")
         return "Are you sure about that?"
