@@ -28,33 +28,58 @@ async def fetch_player_stats(interaction: discord.Interaction):
             return "Unable to retrieve player stats."
         
         try:
-            stats = data.get("data", {})
-            if not stats:
+            response_data = data.get("data", {})
+            if not response_data:
                 return "No stats found for this player."
             
-            # Extract battle royale stats
-            account = stats.get("account", {})
+            # Extract player info and stats
+            account = response_data.get("account", {})
+            battle_pass = response_data.get("battlePass", {})
+            stats_by_mode = response_data.get("stats", {}).get("all", {})
+            
+            if not stats_by_mode:
+                return "No stats found for this player."
             
             # Build the formatted message
             message_lines = []
             
-            # Player info
+            # Player header
             player_name = account.get("name", "Unknown")
-            message_lines.append(f"**Fortnite Stats for {player_name}**\n")
+            message_lines.append(f"**Fortnite Stats for {player_name}**")
+            message_lines.append(f"Battle Pass Level: {battle_pass.get('level', 0)}")
+            message_lines.append("")
             
-            # Battle Royale stats
-            if "all" in stats:
-                all_stats = stats["all"]
-                message_lines.append("**Battle Royale (All-Time)**")
-                message_lines.append(f"  Matches: {all_stats.get('matches', 0)}")
-                message_lines.append(f"  Wins: {all_stats.get('wins', 0)}")
-                message_lines.append(f"  Top 10: {all_stats.get('top10', 0)}")
-                message_lines.append(f"  Top 25: {all_stats.get('top25', 0)}")
-                message_lines.append(f"  Kills: {all_stats.get('kills', 0)}")
-                message_lines.append(f"  K/D Ratio: {all_stats.get('kd', 0):.2f}")
-                message_lines.append(f"  Win Rate: {all_stats.get('winRate', 0):.2f}%")
+            # Overall stats
+            overall = stats_by_mode.get("overall", {})
+            if overall:
+                message_lines.append("**📊 Overall Stats**")
+                message_lines.append(f"  Matches: {overall.get('matches', 0)}")
+                message_lines.append(f"  Wins: {overall.get('wins', 0)} ({overall.get('winRate', 0):.2f}%)")
+                message_lines.append(f"  Top 10: {overall.get('top10', 0)}")
+                message_lines.append(f"  Kills: {overall.get('kills', 0)}")
+                message_lines.append(f"  K/D Ratio: {overall.get('kd', 0):.2f}")
+                message_lines.append("")
             
-            return message_lines if len("\n".join(message_lines)) <= 2000 else "Player stats are too long to display."
+            # Mode-specific stats
+            modes = [
+                ("solo", "🎮 Solo"),
+                ("duo", "👥 Duo"),
+                ("squad", "👨‍👩‍👧‍👦 Squad"),
+            ]
+            
+            for mode_key, mode_label in modes:
+                mode_stats = stats_by_mode.get(mode_key, {})
+                if mode_stats:
+                    message_lines.append(f"**{mode_label}**")
+                    message_lines.append(f"  Matches: {mode_stats.get('matches', 0)} | Wins: {mode_stats.get('wins', 0)} ({mode_stats.get('winRate', 0):.2f}%)")
+                    message_lines.append(f"  Kills: {mode_stats.get('kills', 0)} | K/D: {mode_stats.get('kd', 0):.2f}")
+            
+            formatted_message = "\n".join(message_lines)
+            
+            if len(formatted_message) > 2000:
+                return "Player stats are too long to display."
+            
+            return formatted_message
             
         except Exception as e:
             logger.error(f"Error formatting player stats: {e}")
@@ -82,7 +107,7 @@ async def fetch_player_stats(interaction: discord.Interaction):
             logger.info("Fetched player stats successfully")
             logger.debug(f"Player stats: {data}")
             stats_message = format_player_stats(data)
-            await interaction.response.send_message(stats_message, ephemeral=True)
+            await interaction.response.send_message(stats_message)
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():
