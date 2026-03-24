@@ -54,7 +54,8 @@ async def fetch_player_stats(interaction: discord.Interaction):
                 message_lines.append(f"  K/D Ratio: {all_stats.get('kd', 0):.2f}")
                 message_lines.append(f"  Win Rate: {all_stats.get('winRate', 0):.2f}%")
             
-            return "\n".join(message_lines)
+            # return "\n".join(message_lines)
+            
         except Exception as e:
             logger.error(f"Error formatting player stats: {e}")
             return "Error formatting player stats."
@@ -80,7 +81,7 @@ async def fetch_player_stats(interaction: discord.Interaction):
             logger.info("Fetched player stats successfully")
             logger.debug(f"Player stats: {data}")
             stats_message = format_player_stats(data)
-            await interaction.response.send_message(stats_message)
+            await interaction.response.send_message("\n".join(stats_message), ephemeral=True)
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():
