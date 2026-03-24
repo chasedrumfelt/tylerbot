@@ -219,7 +219,7 @@ async def region_autocomplete(interaction: discord.Interaction, current: str):
 async def birds(interaction: discord.Interaction, region: str = "US"):
     await get_notable_birds(interaction, region)
 
-@bot.tree.command(name="fortniteStats", description="Get your Fortnite stats")
+@bot.tree.command(name="fortnitestats", description="Get your Fortnite stats")
 async def fortnite_stats(interaction: discord.Interaction):
     user_id = interaction.user.id
     if user_id not in constants.FORTNITE_ACCT_IDS:
@@ -227,7 +227,8 @@ async def fortnite_stats(interaction: discord.Interaction):
         return
     else:
         userAcctId = constants.FORTNITE_ACCT_IDS[user_id]
-    await fetch_player_stats(userAcctId)
+    stats_message = await fetch_player_stats(userAcctId)
+    await interaction.response.send_message(stats_message)
 
 
 bot.run(constants.DISCORD_TOKEN)

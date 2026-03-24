@@ -20,18 +20,57 @@ SHOP_REFRESH_MINUTE_UTC = 5
 
 #----- PLAYER STATS -----
 async def fetch_player_stats(userAcctId):
+    def format_player_stats(data):
+        """Transform raw player stats API data into a readable Discord message."""
+        if not data or not isinstance(data, dict):
+            return "Unable to retrieve player stats."
+        
+        try:
+            stats = data.get("data", {})
+            if not stats:
+                return "No stats found for this player."
+            
+            # Extract battle royale stats
+            br = stats.get("battlePass", {})
+            account = stats.get("account", {})
+            
+            # Build the formatted message
+            message_lines = []
+            
+            # Player info
+            player_name = account.get("name", "Unknown")
+            message_lines.append(f"**Fortnite Stats for {player_name}**\n")
+            
+            # Battle Royale stats
+            if "all" in stats:
+                all_stats = stats["all"]
+                message_lines.append("**Battle Royale (All-Time)**")
+                message_lines.append(f"  Matches: {all_stats.get('matches', 0)}")
+                message_lines.append(f"  Wins: {all_stats.get('wins', 0)}")
+                message_lines.append(f"  Top 10: {all_stats.get('top10', 0)}")
+                message_lines.append(f"  Top 25: {all_stats.get('top25', 0)}")
+                message_lines.append(f"  Kills: {all_stats.get('kills', 0)}")
+                message_lines.append(f"  K/D Ratio: {all_stats.get('kd', 0):.2f}")
+                message_lines.append(f"  Win Rate: {all_stats.get('winRate', 0):.2f}%")
+            
+            return "\n".join(message_lines)
+        except Exception as e:
+            logger.error(f"Error formatting player stats: {e}")
+            return "Error formatting player stats."
+    
     url = f"{PLAYER_STATS_URL}/{userAcctId}"
     logger.debug(f"Fetching player stats from {url}")
     headers = {"Authorization": constants.FORTNITE_API_KEY}
     async with aiohttp.ClientSession() as session:
-        async with session.get(url, headers=headers) as resp:
+        async with session.get(url, headers=headers, params={"timeWindow": "lifetime"}) as resp:
             logger.debug(f"Player stats API response status: {resp.status}")
             if resp.status != 200:
                 logger.warning(f"Failed to fetch player stats: HTTP {resp.status}")
                 return None
             data = await resp.json()
             logger.info("Fetched player stats successfully")
-            return data
+            logger.debug(f"Player stats: {data}")
+            return format_player_stats(data)
         
 
 # ----- HELPER FUNCTIONS -----
