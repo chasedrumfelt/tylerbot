@@ -4,6 +4,8 @@ import asyncio
 import json
 import os
 import logging
+
+import discord
 import constants
 from discord.ext import tasks
 
@@ -19,7 +21,7 @@ SHOP_REFRESH_MINUTE_UTC = 5
 
 
 #----- PLAYER STATS -----
-async def fetch_player_stats(userAcctId):
+async def fetch_player_stats(interaction: discord.Interaction):
     def format_player_stats(data):
         """Transform raw player stats API data into a readable Discord message."""
         if not data or not isinstance(data, dict):
@@ -31,7 +33,6 @@ async def fetch_player_stats(userAcctId):
                 return "No stats found for this player."
             
             # Extract battle royale stats
-            br = stats.get("battlePass", {})
             account = stats.get("account", {})
             
             # Build the formatted message
@@ -58,6 +59,13 @@ async def fetch_player_stats(userAcctId):
             logger.error(f"Error formatting player stats: {e}")
             return "Error formatting player stats."
     
+    user_id = interaction.user.id
+    if user_id not in constants.FORTNITE_ACCT_IDS:
+        await interaction.response.send_message("You don't have a Fortnite account linked.", ephemeral=True)
+        return
+    
+    userAcctId = constants.FORTNITE_ACCT_IDS[user_id]
+    
     url = f"{PLAYER_STATS_URL}/{userAcctId}"
     logger.debug(f"Fetching player stats from {url}")
     headers = {"Authorization": constants.FORTNITE_API_KEY}
@@ -66,12 +74,13 @@ async def fetch_player_stats(userAcctId):
             logger.debug(f"Player stats API response status: {resp.status}")
             if resp.status != 200:
                 logger.warning(f"Failed to fetch player stats: HTTP {resp.status}")
-                return None
+                await interaction.response.send_message("Failed to fetch player stats. Please try again later.", ephemeral=True)
+                return
             data = await resp.json()
             logger.info("Fetched player stats successfully")
             logger.debug(f"Player stats: {data}")
-            return format_player_stats(data)
-        
+            stats_message = format_player_stats(data)
+            await interaction.response.send_message(stats_message)
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():

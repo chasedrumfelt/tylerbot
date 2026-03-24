@@ -221,14 +221,7 @@ async def birds(interaction: discord.Interaction, region: str = "US"):
 
 @bot.tree.command(name="fortnitestats", description="Get your Fortnite stats")
 async def fortnite_stats(interaction: discord.Interaction):
-    user_id = interaction.user.id
-    if user_id not in constants.FORTNITE_ACCT_IDS:
-        await interaction.response.send_message("You don't have a Fortnite account linked.", ephemeral=True)
-        return
-    else:
-        userAcctId = constants.FORTNITE_ACCT_IDS[user_id]
-    stats_message = await fetch_player_stats(userAcctId)
-    await interaction.response.send_message(stats_message)
+    await fetch_player_stats(interaction)
 
 
 bot.run(constants.DISCORD_TOKEN)
