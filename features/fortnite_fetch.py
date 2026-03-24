@@ -4,17 +4,110 @@ import asyncio
 import json
 import os
 import logging
+
+import discord
 import constants
 from discord.ext import tasks
 
 # ----- CONFIG -----
 FORTNITE_SHOP_URL = "https://fortnite-api.com/v2/shop"
+PLAYER_STATS_URL = "https://fortnite-api.com/v2/stats/br/v2"
 SHOP_STATE_FILE = "last_shop.json"
 
 logger = logging.getLogger(__name__)
 
 SHOP_REFRESH_HOUR_UTC = 0  # midnight UTC
 SHOP_REFRESH_MINUTE_UTC = 5
+
+
+#----- PLAYER STATS -----
+async def fetch_player_stats(interaction: discord.Interaction):
+    def format_player_stats(data):
+        """Transform raw player stats API data into a readable Discord message."""
+        if not data or not isinstance(data, dict):
+            return "Unable to retrieve player stats."
+        
+        try:
+            response_data = data.get("data", {})
+            if not response_data:
+                return "No stats found for this player."
+            
+            # Extract player info and stats
+            account = response_data.get("account", {})
+            battle_pass = response_data.get("battlePass", {})
+            stats_by_mode = response_data.get("stats", {}).get("all", {})
+            
+            if not stats_by_mode:
+                return "No stats found for this player."
+            
+            # Build the formatted message
+            message_lines = []
+            
+            # Player header
+            player_name = account.get("name", "Unknown")
+            message_lines.append(f"**Fortnite Stats for {player_name}**")
+            message_lines.append(f"Battle Pass Level: {battle_pass.get('level', 0)}")
+            message_lines.append("")
+            
+            # Overall stats
+            overall = stats_by_mode.get("overall", {})
+            if overall:
+                message_lines.append("**📊 Overall Stats**")
+                message_lines.append(f"  Matches: {overall.get('matches', 0)}")
+                message_lines.append(f"  Wins: {overall.get('wins', 0)} ({overall.get('winRate', 0):.2f}%)")
+                message_lines.append(f"  Top 10: {overall.get('top10', 0)}")
+                message_lines.append(f"  Kills: {overall.get('kills', 0)}")
+                message_lines.append(f"  K/D Ratio: {overall.get('kd', 0):.2f}")
+                message_lines.append("")
+            
+            # Mode-specific stats
+            modes = [
+                ("solo", "🎮 Solo"),
+                ("duo", "👥 Duo"),
+                ("squad", "👨‍👩‍👧‍👦 Squad"),
+            ]
+            
+            for mode_key, mode_label in modes:
+                mode_stats = stats_by_mode.get(mode_key, {})
+                if mode_stats:
+                    message_lines.append(f"**{mode_label}**")
+                    message_lines.append(f"  Matches: {mode_stats.get('matches', 0)} | Wins: {mode_stats.get('wins', 0)} ({mode_stats.get('winRate', 0):.2f}%)")
+                    message_lines.append(f"  Kills: {mode_stats.get('kills', 0)} | K/D: {mode_stats.get('kd', 0):.2f}")
+            
+            formatted_message = "\n".join(message_lines)
+            
+            if len(formatted_message) > 2000:
+                return "Player stats are too long to display."
+            
+            return formatted_message
+            
+        except Exception as e:
+            logger.error(f"Error formatting player stats: {e}")
+            return "Error formatting player stats."
+    # end format_player_stats
+    
+    user_id = interaction.user.id
+    if user_id not in constants.FORTNITE_ACCT_IDS:
+        await interaction.response.send_message("You don't have a Fortnite account linked.", ephemeral=True)
+        return
+    
+    userAcctId = constants.FORTNITE_ACCT_IDS[user_id]
+    
+    url = f"{PLAYER_STATS_URL}/{userAcctId}"
+    logger.debug(f"Fetching player stats from {url}")
+    headers = {"Authorization": constants.FORTNITE_API_KEY}
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers, params={"timeWindow": "lifetime"}) as resp:
+            logger.debug(f"Player stats API response status: {resp.status}")
+            if resp.status != 200:
+                logger.warning(f"Failed to fetch player stats: HTTP {resp.status}")
+                await interaction.response.send_message("Failed to fetch player stats. Please try again later.", ephemeral=True)
+                return
+            data = await resp.json()
+            logger.info("Fetched player stats successfully")
+            logger.debug(f"Player stats: {data}")
+            stats_message = format_player_stats(data)
+            await interaction.response.send_message(stats_message)
 
 # ----- HELPER FUNCTIONS -----
 async def fetch_shop():
